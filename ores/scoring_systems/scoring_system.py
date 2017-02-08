@@ -14,6 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 class ScoringSystem(dict):
+    """
+    TODO: Review inheritance from dict.  This should probably be an instance or
+    static variable.
+    """
 
     def __init__(self, context_map, score_cache=None,
                        metrics_collector=None, timeout=None):
@@ -25,6 +29,27 @@ class ScoringSystem(dict):
 
     def score(self, context_name, model_names, rev_ids, injection_caches=None,
               precache=False, include_features=False, include_model_info=None):
+        """
+        Retrieve scores and return as a score doc.
+
+        :Parameters:
+            context_name : str
+                Key into self dictionary TODO: what is stored here?  This is 1:1 with wiki dbs?
+            model_names : str[]
+                Models to score.
+            rev_ids
+                Revisions to score.
+            injection_caches
+                TODO: Additional uniqueness to append to score cache keys?
+            precache : bool
+                Flag to indicate whether this is a precaching request.  Passed through to metrics without altering any behavior.
+            include_features : str[]
+                TODO: Unclear whether this adds or replaces features, or just requests single feature scores.
+            include_model_info : str[]
+                List of fields we want model info for.  Defaults to "version".
+
+        TODO: Encapsulate work in a ScoringRequest object, and results in a ScoringResults.
+        """
         model_names = set(model_names)
         start = time.time()
         logger.debug("Scoring {0}:{1}:{2}{3}"
@@ -55,6 +80,12 @@ class ScoringSystem(dict):
 
     def _score(self, context_name, model_names, rev_ids, injection_caches=None,
                include_features=False, include_model_info=None):
+        """
+        Workflow to calculate a score or retrieve it from cache.
+
+        TODO: self should be stateful (careful of threading) so we don't have
+        to pass the entire world to methods.
+        """
         rev_ids = set(rev_ids)
 
         # 0. Get model information
@@ -85,6 +116,7 @@ class ScoringSystem(dict):
             context_name, missing_model_set_revs, injection_caches)
 
         # 3. Extract base datasources for missing models (Slow IO)
+        # TODO: Collect metrics transparently using a decorator.
         start = time.time()
         root_caches, extraction_errors = self._extract_root_caches(
             context_name, missing_model_set_revs, rev_ids,
