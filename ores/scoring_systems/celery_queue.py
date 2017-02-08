@@ -157,6 +157,9 @@ class CeleryQueue(ScoringSystem):
 
         return rev_scores, score_errors
 
+    # FIXME: This looks unsafe.  A second job may start after we check the
+    # state, but before our job updates the state.  This would be a good place
+    # to use a mutex.
     def _lookup_inprogress_results(self, context_name, model_names, rev_ids,
                                    injection_caches=None, rev_scores=None):
         context = self[context_name]

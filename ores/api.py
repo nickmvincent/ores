@@ -89,6 +89,7 @@ class Session:
                                                rev_id_batch))
 
             for future in futures:
+                # TODO: Do we want to try/catch so that single errors are recoverable?
                 for score in future.result():
                     yield score
 

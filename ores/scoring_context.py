@@ -26,6 +26,8 @@ class ScoringContext(dict):
            instances
         extractor : :class:`revscoring.Extractor`
            An extractor to use for gathering feature values
+
+    TODO: Reconsider inheritance from dict, in favor of a static member or better yet, external store.
     """
 
     def __init__(self, name, model_map, extractor):
