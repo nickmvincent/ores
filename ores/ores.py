@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This script provides access to a set of utilities for ORES
 
