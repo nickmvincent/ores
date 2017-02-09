@@ -39,18 +39,18 @@ class ScoreCache:
 
 class Context:
 
-    def __init__(self, scorer_cache, context, model, version=None):
-        self.scorer_cache = scorer_cache
+    def __init__(self, score_cache, context, model, version=None):
+        self.score_cache = score_cache
         self.context = str(context)
         self.model = str(model)
         self.version = version
 
     def lookup(self, rev_id, injection_cache=None):
-        return self.scorer_cache.lookup(
+        return self.score_cache.lookup(
             self.context, self.model, rev_id, injection_cache=injection_cache,
             version=self.version)
 
     def store(self, rev_id, score, injection_cache=None):
-        return self.scorer_cache.store(
+        return self.score_cache.store(
             score, self.context, self.model, rev_id,
             injection_cache=injection_cache, version=self.version)
