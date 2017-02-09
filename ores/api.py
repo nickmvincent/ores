@@ -1,6 +1,7 @@
 """
 This module provides a :class:`ores.api.Session` class that can maintain a
-connection to an instance of ORES and efficiently generate scores.
+connection to an instance of ORES and efficiently generate scores.  It's meant
+to be used from a client application.
 
 .. autoclass:: ores.api.Session
     :members:
