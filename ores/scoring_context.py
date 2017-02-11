@@ -11,7 +11,7 @@ from revscoring.scorer_models import ScorerModel
 logger = logging.getLogger(__name__)
 
 
-class ScoringContext(dict):
+class ScoringContext(object):
     """
     Represents a context in which scoring can take place.  Usually, a wiki is
     1:1 with a "ScoringContext".
@@ -33,7 +33,7 @@ class ScoringContext(dict):
     def __init__(self, name, model_map, extractor):
         super().__init__()
         self.name = str(name)
-        self.update(model_map)
+        self.model_map = model_map
         self.extractor = extractor
 
     def format_model_info(self, model_names, fields=None):
@@ -61,13 +61,13 @@ class ScoringContext(dict):
             return score_id + ":" + cache_hash
 
     def _get_model_info_for(self, model_name):
-        return self[model_name].format_info(format='json')
+        return self.model_map[model_name].format_info(format='json')
 
     def model_version(self, model_name):
-        return self[model_name].version
+        return self.model_map[model_name].version
 
     def model_features(self, model_name):
-        return self[model_name].features
+        return self.model_map[model_name].features
 
     def process_model_scores(self, model_names, root_cache,
                              include_features=False):
@@ -108,7 +108,7 @@ class ScoringContext(dict):
         Solves the vector (`list`) of features for a given model using
         the `dependency_cache` and returns them.
         """
-        features = self[model_name].features
+        features = self.model_map[model_name].features
         return list(self.extractor.solve(features, cache=dependency_cache))
 
     def _solve_base_feature_map(self, model_name, dependency_cache=None):
@@ -117,7 +117,7 @@ class ScoringContext(dict):
         `model_name` using `dependency_cache`.  This will return a mapping
         between the `str` name of the base features and the solved values.
         """
-        features = list(trim(self[model_name].features))
+        features = list(trim(self.model_map[model_name].features))
         feature_values = self.extractor.solve(features, cache=dependency_cache)
         return {str(f): v
                 for f, v in zip(features, feature_values)}
@@ -126,7 +126,7 @@ class ScoringContext(dict):
         """
         Generates a score for a given model using the `dependency_cache`.
         """
-        version = self[model_name].version
+        version = self.model_map[model_name].version
 
         start = time.time()
         feature_values = self._solve_features(model_name, dependency_cache)
@@ -135,7 +135,7 @@ class ScoringContext(dict):
                              round(time.time() - start, 3)))
 
         start = time.time()
-        score = self[model_name].score(feature_values)
+        score = self.model_map[model_name].score(feature_values)
         logger.debug("Scored features for {0}:{1}:{2} in {3} secs"
                      .format(self.name, model_name, version,
                              round(time.time() - start, 3)))
