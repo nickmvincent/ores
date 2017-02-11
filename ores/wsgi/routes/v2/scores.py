@@ -29,7 +29,7 @@ def configure(config, bp, scoring_system):
             include_model_info = None
 
         response_doc = {}
-        for context_name, scoring_context in scoring_system.items():
+        for context_name, scoring_context in scoring_system.context_map.items():
 
             response_doc[context_name] = scoring_system.format_model_info(
                 context_name, include_model_info=include_model_info)
@@ -43,7 +43,7 @@ def configure(config, bp, scoring_system):
     def score_model_revisions_v2(context):
         response_doc = {context: {}}
         # Check to see if we have the context available in our score_processor
-        if context not in scoring_system:
+        if context not in scoring_system.context_map:
             return responses.not_found("No scorers available for {0}"
                                        .format(context))
 
@@ -56,13 +56,13 @@ def configure(config, bp, scoring_system):
                 return responses.bad_request(str(e))
 
             # Check if all the models are available
-            missing_models = models - scoring_system[context].keys()
+            missing_models = models - scoring_system.context_map[context].keys()
             if len(missing_models) > 0:
                 return responses.bad_request("Models '{0}' not available for {1}."
                                              .format(list(missing_models), context))
         else:
             # Empty?  All the models!
-            models = scoring_system[context].keys()
+            models = scoring_system.context_map[context].keys()
 
         # model_info param
         if 'model_info' in request.args:
@@ -78,7 +78,7 @@ def configure(config, bp, scoring_system):
 
         for model_name in models:
             response_doc[context][model_name] = \
-                {'version': scoring_system[context].model_version(model_name)}
+                {'version': scoring_system.context_map[context].model_version(model_name)}
 
         # Read the rev_ids
         try:
@@ -126,16 +126,16 @@ def configure(config, bp, scoring_system):
     def score_revisions_v2(context, model):
         response_doc = {context: {model: {}}}
         # Check to see if we have the context available in our score_processor
-        if context not in scoring_system:
+        if context not in scoring_system.context_map:
             return responses.not_found("No models available for {0}"
                                        .format(context))
 
-        if model not in scoring_system[context]:
+        if model not in scoring_system.context_map[context]:
             return responses.bad_request("Model '{0}' not available for {1}."
                                          .format(model, context))
 
         response_doc[context][model] = \
-            {'version': scoring_system[context].model_version(model)}
+            {'version': scoring_system.context_map[context].model_version(model)}
 
         if 'model_info' in request.args:
             try:
@@ -193,16 +193,16 @@ def configure(config, bp, scoring_system):
     def score_revision_v2(context, model, rev_id):
         response_doc = {context: {model: {}}}
         # Check to see if we have the context available in our score_processor
-        if context not in scoring_system:
+        if context not in scoring_system.context_map:
             return responses.not_found("No models available for {0}"
                                        .format(context))
 
-        if model not in scoring_system[context]:
+        if model not in scoring_system.context_map[context]:
             return responses.bad_request("Model '{0}' not available for {1}."
                                          .format(model, context))
 
         response_doc[context][model] = \
-            {'version': scoring_system[context].model_version(model)}
+            {'version': scoring_system.context_map[context].model_version(model)}
 
         if 'model_info' in request.args:
                 try:

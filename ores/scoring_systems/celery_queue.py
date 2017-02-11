@@ -101,7 +101,7 @@ class CeleryQueue(ScoringSystem):
                                 include_features, inprogress_results=None):
         logger.debug("Processing missing scores {0}:{1}."
                      .format(context_name, missing_model_set_revs))
-        context = self[context_name]
+        context = self.context_map[context_name]
 
         inprogress_results = inprogress_results or {}
 
@@ -162,7 +162,7 @@ class CeleryQueue(ScoringSystem):
     # to use a mutex.
     def _lookup_inprogress_results(self, context_name, model_names, rev_ids,
                                    injection_caches=None, rev_scores=None):
-        context = self[context_name]
+        context = self.context_map[context_name]
 
         inprogress_results = {}
         for rev_id in rev_ids:
@@ -192,7 +192,7 @@ class CeleryQueue(ScoringSystem):
 
     def _register_model_set_revs_to_process(self, context_name, model_set_revs,
                                             injection_caches):
-        context = self[context_name]
+        context = self.context_map[context_name]
 
         for model_set, rev_ids in model_set_revs.items():
             for rev_id in rev_ids:

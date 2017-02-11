@@ -13,16 +13,12 @@ from ..util import jsonify_error, timeout
 logger = logging.getLogger(__name__)
 
 
-class ScoringSystem(dict):
-    """
-    TODO: Review inheritance from dict.  This should probably be an instance or
-    static variable.
-    """
+class ScoringSystem(object):
 
     def __init__(self, context_map, score_cache=None,
                        metrics_collector=None, timeout=None):
         super().__init__()
-        self.update(context_map)
+        self.context_map = context_map
         self.score_cache = score_cache or Empty()
         self.metrics_collector = metrics_collector or Null()
         self.timeout = timeout
@@ -160,7 +156,7 @@ class ScoringSystem(dict):
 
     def _extract_root_caches(self, context_name, missing_model_set_revs,
                              rev_ids, injection_caches=None):
-        context = self[context_name]
+        context = self.context_map[context_name]
 
         root_caches = {}
         errors = {}
@@ -175,7 +171,7 @@ class ScoringSystem(dict):
 
     def _process_score_map(self, context_name, model_names, rev_id, root_cache,
                            injection_cache, include_features):
-        context = self[context_name]
+        context = self.context_map[context_name]
 
         start = time.time()
         # Runs a timeout function so that we don't get stuck here
@@ -215,7 +211,7 @@ class ScoringSystem(dict):
 
     def format_model_info(self, context_name, model_names=None,
                           include_model_info=None):
-        context = self[context_name]
+        context = self.context_map[context_name]
         model_names = model_names or context.keys()
         return context.format_model_info(model_names, fields=include_model_info)
 
@@ -259,7 +255,7 @@ class ScoringSystem(dict):
 
     def _cache_score(self, score_doc, context_name, model_name, rev_id,
                      injection_cache):
-        version = self[context_name].model_version(model_name)
+        version = self.context_map[context_name].model_version(model_name)
         rev_score = score_doc['score']
         self.score_cache.store(
             rev_score, context_name, model_name, rev_id,
@@ -292,7 +288,7 @@ class ScoringSystem(dict):
 
     def _lookup_cached_score(self, context_name, model_name, rev_id,
                              injection_cache=None):
-        version = self[context_name].model_version(model_name)
+        version = self.context_map[context_name].model_version(model_name)
         try:
             score = self.score_cache.lookup(
                 context_name, model_name, rev_id,
