@@ -39,7 +39,9 @@ setup(
             'ores = ores.ores:main',
         ],
     },
-    packages=find_packages(),
+    packages=[
+        'ores',
+    ],
     include_package_data=True,
     long_description=read('README.md'),
     install_requires=list(requirements("requirements.txt")),
