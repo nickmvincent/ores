@@ -74,3 +74,6 @@ scorer_models:
   testwiki_revid:
     class: ores.scoring.models.RevIdScorer
     version: 0.0.0
+  testwiki_jade:
+    class: ores.scoring.models.JadeScorer
+    version: 0.0.0
