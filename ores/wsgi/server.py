@@ -1,5 +1,6 @@
 import os
 
+from flask_cors import CORS
 import flask_swaggerui
 import flask_wikimediaui
 
@@ -16,6 +17,7 @@ def configure(config):
     app = Flask(__name__,
                 static_url_path="/BASE_STATIC",
                 template_folder=os.path.join(directory, 'templates'))
+    CORS(app)
 
     app.config['APPLICATION_ROOT'] = config['ores']['wsgi']['application_root']
     app.url_map.strict_slashes = False
